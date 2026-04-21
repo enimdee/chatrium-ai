@@ -3,7 +3,7 @@ import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { env } from "@/lib/env";
-import { getResolvedKey } from "@/lib/admin/settings-store";
+import { getResolvedKey, readSettings } from "@/lib/admin/settings-store";
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 
@@ -29,13 +29,13 @@ export interface GenerateDraftResult {
 
 /** Anthropic — keeps prompt-cache (ephemeral) for ~90 % input-cost saving. */
 async function generateWithAnthropic(args: GenerateDraftArgs): Promise<GenerateDraftResult> {
-  const e = env();
-  const apiKey = await getResolvedKey("anthropic");
+  const [apiKey, settings] = await Promise.all([getResolvedKey("anthropic"), readSettings()]);
   if (!apiKey) throw new Error("Anthropic API key not configured. Add it in Admin → API Settings.");
 
+  const model = settings.anthropic_model || env().ANTHROPIC_MODEL;
   const client = new Anthropic({ apiKey, maxRetries: 1 });
   const response = await client.messages.create({
-    model: e.ANTHROPIC_MODEL,
+    model,
     max_tokens: args.maxTokens ?? 700,
     system: [{ type: "text", text: args.systemPrompt, cache_control: { type: "ephemeral" } }],
     messages: [{ role: "user", content: args.userContent }],
@@ -59,13 +59,13 @@ async function generateWithAnthropic(args: GenerateDraftArgs): Promise<GenerateD
 
 /** OpenAI — via Vercel AI SDK. */
 async function generateWithOpenAI(args: GenerateDraftArgs): Promise<GenerateDraftResult> {
-  const e = env();
-  const apiKey = await getResolvedKey("openai");
+  const [apiKey, settings] = await Promise.all([getResolvedKey("openai"), readSettings()]);
   if (!apiKey) throw new Error("OpenAI API key not configured. Add it in Admin → API Settings.");
 
+  const model = settings.openai_model || env().OPENAI_MODEL;
   const client = createOpenAI({ apiKey });
   const result = await generateText({
-    model: client(e.OPENAI_MODEL),
+    model: client(model),
     system: args.systemPrompt,
     prompt: args.userContent,
     maxOutputTokens: args.maxTokens ?? 700,
@@ -86,13 +86,13 @@ async function generateWithOpenAI(args: GenerateDraftArgs): Promise<GenerateDraf
 
 /** Google Gemini — via Vercel AI SDK. */
 async function generateWithGoogle(args: GenerateDraftArgs): Promise<GenerateDraftResult> {
-  const e = env();
-  const apiKey = await getResolvedKey("google");
+  const [apiKey, settings] = await Promise.all([getResolvedKey("google"), readSettings()]);
   if (!apiKey) throw new Error("Google API key not configured. Add it in Admin → API Settings.");
 
+  const model = settings.google_model || env().GOOGLE_MODEL;
   const client = createGoogleGenerativeAI({ apiKey });
   const result = await generateText({
-    model: client(e.GOOGLE_MODEL),
+    model: client(model),
     system: args.systemPrompt,
     prompt: args.userContent,
     maxOutputTokens: args.maxTokens ?? 700,
@@ -113,9 +113,11 @@ async function generateWithGoogle(args: GenerateDraftArgs): Promise<GenerateDraf
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 
-/** Route to the active provider set by AI_PROVIDER env var. */
+/** Route to the active provider — reads from settings store first, falls back to env. */
 export async function generateDraft(args: GenerateDraftArgs): Promise<GenerateDraftResult> {
-  switch (env().AI_PROVIDER) {
+  const settings = await readSettings();
+  const provider = settings.ai_provider ?? env().AI_PROVIDER;
+  switch (provider) {
     case "openai":  return generateWithOpenAI(args);
     case "google":  return generateWithGoogle(args);
     default:        return generateWithAnthropic(args);
