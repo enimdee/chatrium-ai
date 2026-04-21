@@ -3,6 +3,12 @@
 import { useActionState, useEffect, useState } from "react";
 import { saveSettings, clearKey, type SaveSettingsState } from "./actions";
 
+type TestResult =
+  | { status: "idle" }
+  | { status: "testing" }
+  | { status: "ok";   provider: string; model: string; latency_ms: number }
+  | { status: "fail"; provider: string; error: string };
+
 const PROVIDERS = [
   {
     id: "anthropic" as const,
@@ -56,6 +62,7 @@ export default function ApiSettingsPage() {
   const [settings, setSettings] = useState<SettingsSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [showKey, setShowKey] = useState<Record<string, boolean>>({});
+  const [testResult, setTestResult] = useState<TestResult>({ status: "idle" });
 
   const fetchSettings = () =>
     fetch("/api/admin/settings")
@@ -201,7 +208,7 @@ export default function ApiSettingsPage() {
           );
         })}
 
-        <div className="pt-2 flex items-center gap-3">
+        <div className="pt-2 flex items-center gap-3 flex-wrap">
           <button
             type="submit"
             disabled={pending}
@@ -209,6 +216,28 @@ export default function ApiSettingsPage() {
           >
             {pending ? "Saving…" : "Save Settings"}
           </button>
+
+          <button
+            type="button"
+            disabled={testResult.status === "testing"}
+            onClick={async () => {
+              setTestResult({ status: "testing" });
+              const res = await fetch("/api/admin/test-connection", { method: "POST" });
+              const data = await res.json() as {
+                ok: boolean; provider: string; model?: string;
+                latency_ms: number; error?: string;
+              };
+              setTestResult(
+                data.ok
+                  ? { status: "ok",   provider: data.provider, model: data.model!, latency_ms: data.latency_ms }
+                  : { status: "fail", provider: data.provider, error: data.error! },
+              );
+            }}
+            className="px-6 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold transition-colors disabled:opacity-50"
+          >
+            {testResult.status === "testing" ? "Testing…" : "🔌 Test Connection"}
+          </button>
+
           {settings?.updated_at && (
             <span className="text-xs text-gray-400">
               Last saved:{" "}
@@ -216,6 +245,18 @@ export default function ApiSettingsPage() {
             </span>
           )}
         </div>
+
+        {/* Test result banner */}
+        {testResult.status === "ok" && (
+          <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
+            ✅ <strong>{testResult.provider}</strong> connected — model: <code>{testResult.model}</code> · {testResult.latency_ms}ms
+          </div>
+        )}
+        {testResult.status === "fail" && (
+          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+            ❌ <strong>{testResult.provider}</strong> failed — {testResult.error}
+          </div>
+        )}
       </form>
     </div>
   );
