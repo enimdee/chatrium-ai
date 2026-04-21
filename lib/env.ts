@@ -8,15 +8,16 @@ const envSchema = z.object({
   AI_PROVIDER: z.enum(["anthropic", "openai", "google"]).default("anthropic"),
 
   // Anthropic (default)
-  ANTHROPIC_API_KEY: z.string().min(1).optional(),
+  // Use transform so empty-string env vars (from compose ${VAR:-}) become undefined
+  ANTHROPIC_API_KEY: z.string().transform((v) => v || undefined).optional(),
   ANTHROPIC_MODEL: z.string().default("claude-sonnet-4-6"),
 
   // OpenAI
-  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_API_KEY: z.string().transform((v) => v || undefined).optional(),
   OPENAI_MODEL: z.string().default("gpt-4o"),
 
   // Google Gemini
-  GOOGLE_API_KEY: z.string().min(1).optional(),
+  GOOGLE_API_KEY: z.string().transform((v) => v || undefined).optional(),
   GOOGLE_MODEL: z.string().default("gemini-2.0-flash"),
 
   DATABASE_URL: z.string().url().optional(),
