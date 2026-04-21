@@ -225,6 +225,22 @@ export function ComposeWorkspace() {
               </form>
             </div>
           )}
+
+          {/* Powered by Wokeflow */}
+          <a
+            href="https://wokeflow.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 pt-3 pb-1 transition-opacity hover:opacity-100"
+            style={{ opacity: 0.35 }}
+          >
+            <span className="text-[10px] tracking-[0.18em] uppercase" style={{ color: "#c5a572" }}>
+              Powered by
+            </span>
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: "#c5a572" }}>
+              Wokeflow
+            </span>
+          </a>
         </div>
       </aside>
 
