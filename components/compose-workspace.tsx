@@ -170,15 +170,22 @@ export function ComposeWorkspace() {
           )}
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-auto pt-4 border-t" style={{ borderColor: "var(--color-line)" }}>
           <a
-            href="/admin/api-settings"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] tracking-wider uppercase transition-colors"
-            style={{ color: "var(--color-muted)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-gold)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-muted)")}
+            href="/admin/app-settings"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors"
+            style={{ color: "#a0a4aa", background: "transparent" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--color-gold)";
+              e.currentTarget.style.background = "rgba(197,165,114,0.08)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "#a0a4aa";
+              e.currentTarget.style.background = "transparent";
+            }}
           >
-            ⚙ Admin
+            <span className="text-base">⚙</span>
+            <span>Admin Settings</span>
           </a>
         </div>
       </aside>
