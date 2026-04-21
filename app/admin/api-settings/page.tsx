@@ -119,13 +119,17 @@ export default function ApiSettingsPage() {
           return (
             <div
               key={p.id}
-              className={`rounded-xl border p-5 space-y-4 transition-colors ${
-                isActive ? "border-amber-400 bg-amber-50" : "border-gray-200 bg-white"
+              className={`rounded-xl border p-5 space-y-4 transition-colors cursor-pointer ${
+                isActive ? "border-amber-400 bg-amber-50" : "border-gray-200 bg-white hover:border-amber-200"
               }`}
+              onClick={() => {
+                const radio = document.querySelector<HTMLInputElement>(`input[name="ai_provider"][value="${p.id}"]`);
+                if (radio) radio.click();
+              }}
             >
               {/* ── Header row ── */}
               <div className="flex items-center gap-3 flex-wrap">
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="radio"
                     name="ai_provider"

@@ -23,10 +23,35 @@ export function DraftPreview({
   if (!result) {
     return (
       <div
-        className="p-10 text-center rounded-lg border"
-        style={{ borderColor: "var(--color-line)", background: "#0d0f11", color: "var(--color-muted)" }}
+        className="rounded-lg border p-8 space-y-5"
+        style={{ borderColor: "var(--color-line)", background: "#0d0f11" }}
       >
-        The generated draft will appear here.
+        <div className="text-center" style={{ color: "var(--color-muted)" }}>
+          <div className="text-3xl mb-3">✉</div>
+          <div className="text-[13px]">Your draft will appear here.</div>
+          <div className="text-[12px] mt-1" style={{ color: "#5a5e66" }}>
+            Fill in the form on the left, then click Generate Email.
+          </div>
+        </div>
+        <div
+          className="rounded-lg p-4 space-y-2 text-[12px]"
+          style={{ background: "var(--color-panel)", borderLeft: "2px solid var(--color-gold)", color: "#c7b48a" }}
+        >
+          <div className="font-semibold tracking-wide uppercase text-[10px]" style={{ color: "var(--color-gold)" }}>
+            Brand Voice: Rene Balmer
+          </div>
+          {[
+            "Emotional — write to a real person, not a file",
+            "Connection — reference the guest's history",
+            "Example — be specific, name the hotel and amenity",
+            'Remarkable — close with "Remarkably yours,"',
+          ].map((tip) => (
+            <div key={tip} className="flex gap-2 items-start">
+              <span style={{ color: "var(--color-gold)" }}>·</span>
+              <span style={{ color: "#c7c9cc" }}>{tip}</span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

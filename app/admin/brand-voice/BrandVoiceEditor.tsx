@@ -55,7 +55,7 @@ export function BrandVoiceEditor({ activeContent, versions }: Props) {
             name="note"
             placeholder="Change note (optional)"
             maxLength={200}
-            className="flex-1 min-w-0 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-300"
+            className="flex-1 min-w-0 text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-300"
           />
           <button
             type="submit"

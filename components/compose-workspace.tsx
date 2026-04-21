@@ -115,30 +115,49 @@ export function ComposeWorkspace() {
           </div>
         </div>
 
-        <button type="button" className="btn-gold text-xs py-2.5">+ New Draft</button>
+        <button
+          type="button"
+          className="btn-gold text-xs py-2.5"
+          onClick={() => {
+            setLanguage("th");
+            setProperty("rawai");
+            setRole("general_manager");
+            setTaskType("guest_email");
+            setRecipientContext("");
+            setObjective("");
+            setAdditionalNotes("");
+            setResult(null);
+            setError(null);
+          }}
+        >
+          + New Draft
+        </button>
 
-        <div>
-          <div className="text-[10px] tracking-[0.2em] uppercase mb-1.5" style={{ color: "var(--color-muted)" }}>
-            Phase 1 notice
+        <div className="mt-1 space-y-2">
+          <div className="text-[10px] tracking-[0.2em] uppercase mb-1" style={{ color: "var(--color-muted)" }}>
+            How to use
           </div>
-          <p className="text-[12px] leading-relaxed" style={{ color: "#c7c9cc" }}>
-            Drafts are not saved yet. History, templates, and auth arrive in Phase 2.
-          </p>
+          {[
+            "1. Fill in the form",
+            "2. Click Generate Email",
+            "3. Copy → paste into Outlook",
+          ].map((s) => (
+            <p key={s} className="text-[12px] leading-relaxed" style={{ color: "#c7c9cc" }}>
+              {s}
+            </p>
+          ))}
         </div>
 
-        <div className="mt-auto p-3 rounded-lg flex items-center gap-2.5" style={{ background: "var(--color-panel)" }}>
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-[13px]"
-            style={{ background: "#2a2d33", color: "var(--color-gold)" }}
+        <div className="mt-auto">
+          <a
+            href="/admin/api-settings"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] tracking-wider uppercase transition-colors"
+            style={{ color: "var(--color-muted)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-gold)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-muted)")}
           >
-            P1
-          </div>
-          <div>
-            <div className="text-[12px]">Preview build</div>
-            <div className="text-[11px]" style={{ color: "var(--color-muted)" }}>
-              Rawai pilot
-            </div>
-          </div>
+            ⚙ Admin
+          </a>
         </div>
       </aside>
 
