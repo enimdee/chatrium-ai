@@ -1,24 +1,10 @@
 import { z } from "zod";
 
-export const propertySchema = z.enum([
-  "rawai",
-  "grand_bangkok",
-  "riverside_bangkok",
-  "maitria_rama9",
-  "maitria_sukhumvit18",
-]);
+// White-label: property and role are free strings configured via Admin → App Settings
+export const propertySchema = z.string().min(1).max(100);
 export type Property = z.infer<typeof propertySchema>;
 
-export const roleSchema = z.enum([
-  "general_manager",
-  "front_office_manager",
-  "sales_marketing",
-  "reservations",
-  "guest_relations",
-  "staff",
-  "marcom_admin",
-  "it_admin",
-]);
+export const roleSchema = z.string().min(1).max(100);
 export type Role = z.infer<typeof roleSchema>;
 
 export const taskTypeSchema = z.enum([

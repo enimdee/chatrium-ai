@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type {
   GenerateRequest,
   GenerateResponse,
@@ -11,42 +11,72 @@ import type {
 } from "@/lib/schemas";
 import { DraftPreview } from "./draft-preview";
 
-const PROPERTIES: { value: Property; label: string }[] = [
-  { value: "rawai", label: "Chatrium Rawai Phuket" },
-  { value: "grand_bangkok", label: "Chatrium Grand Bangkok" },
-  { value: "riverside_bangkok", label: "Chatrium Riverside Bangkok" },
-  { value: "maitria_rama9", label: "Maitria Residence Rama 9" },
-  { value: "maitria_sukhumvit18", label: "Maitria Hotel Sukhumvit 18" },
-];
-
-const ROLES: { value: Role; label: string }[] = [
-  { value: "general_manager", label: "General Manager" },
-  { value: "front_office_manager", label: "Front Office Manager" },
-  { value: "sales_marketing", label: "Sales & Marketing" },
-  { value: "reservations", label: "Reservations" },
-  { value: "guest_relations", label: "Guest Relations" },
-];
-
+// ── Task types are universal for hospitality ──────────────────────────────────
 const TASK_TYPES: { value: TaskType; label: string }[] = [
-  { value: "guest_email", label: "Guest email" },
+  { value: "guest_email",       label: "Guest email" },
   { value: "corporate_partner", label: "Corporate / partner" },
-  { value: "internal_memo", label: "Internal memo" },
-  { value: "apology_recovery", label: "Apology & recovery" },
-  { value: "upsell_offer", label: "Upsell / offer" },
+  { value: "internal_memo",     label: "Internal memo" },
+  { value: "apology_recovery",  label: "Apology & recovery" },
+  { value: "upsell_offer",      label: "Upsell / offer" },
 ];
+
+interface AppConfig {
+  app_name: string;
+  app_tagline: string;
+  brand_voice_author: string;
+  properties: { value: string; label: string }[];
+  roles: { value: string; label: string }[];
+}
+
+const FALLBACK_CONFIG: AppConfig = {
+  app_name: "HotelAI",
+  app_tagline: "Communication Assistant",
+  brand_voice_author: "Brand Manager",
+  properties: [{ value: "main", label: "Main Property" }],
+  roles:      [{ value: "general_manager", label: "General Manager" }],
+};
 
 export function ComposeWorkspace() {
-  const [language, setLanguage] = useState<InputLanguage>("th");
-  const [property, setProperty] = useState<Property>("rawai");
-  const [role, setRole] = useState<Role>("general_manager");
-  const [taskType, setTaskType] = useState<TaskType>("guest_email");
+  const [config, setConfig] = useState<AppConfig>(FALLBACK_CONFIG);
+
+  const [language, setLanguage]               = useState<InputLanguage>("th");
+  const [property, setProperty]               = useState<Property>("");
+  const [role, setRole]                       = useState<Role>("");
+  const [taskType, setTaskType]               = useState<TaskType>("guest_email");
   const [recipientContext, setRecipientContext] = useState("");
-  const [objective, setObjective] = useState("");
+  const [objective, setObjective]             = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<GenerateResponse | null>(null);
+  const [error, setError]     = useState<string | null>(null);
+  const [result, setResult]   = useState<GenerateResponse | null>(null);
+
+  // Load config once on mount
+  useEffect(() => {
+    fetch("/api/app-config")
+      .then((r) => r.json())
+      .then((d: AppConfig) => {
+        setConfig(d);
+        if (d.properties[0]) setProperty(d.properties[0].value as Property);
+        if (d.roles[0])      setRole(d.roles[0].value as Role);
+      })
+      .catch(() => {
+        setProperty(FALLBACK_CONFIG.properties[0]!.value as Property);
+        setRole(FALLBACK_CONFIG.roles[0]!.value as Role);
+      });
+  }, []);
+
+  function resetForm() {
+    if (config.properties[0]) setProperty(config.properties[0].value as Property);
+    if (config.roles[0])      setRole(config.roles[0].value as Role);
+    setLanguage("th");
+    setTaskType("guest_email");
+    setRecipientContext("");
+    setObjective("");
+    setAdditionalNotes("");
+    setResult(null);
+    setError(null);
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,8 +90,8 @@ export function ComposeWorkspace() {
 
     const payload: GenerateRequest = {
       input: {
-        property,
-        role,
+        property: property as Property,
+        role: role as Role,
         task_type: taskType,
         recipient_context: recipientContext,
         objective,
@@ -78,7 +108,7 @@ export function ComposeWorkspace() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error ?? `HTTP ${res.status}`);
+        throw new Error((err as { error?: string }).error ?? `HTTP ${res.status}`);
       }
       const data = (await res.json()) as GenerateResponse;
       setResult(data);
@@ -89,47 +119,41 @@ export function ComposeWorkspace() {
     }
   }
 
+  const initial = config.app_name.charAt(0).toUpperCase();
+
   return (
     <div className="grid grid-cols-[260px_1fr] min-h-screen">
-      {/* Sidebar */}
+      {/* ── Sidebar ── */}
       <aside
         className="bg-[#0b0d0f] border-r border-line p-5 flex flex-col gap-4 overflow-y-auto"
         style={{ borderColor: "var(--color-line)" }}
       >
-        <div className="flex items-center gap-3 pb-4 border-b border-line" style={{ borderColor: "var(--color-line)" }}>
+        <div
+          className="flex items-center gap-3 pb-4 border-b border-line"
+          style={{ borderColor: "var(--color-line)" }}
+        >
           <div
-            className="w-9 h-9 rounded-full flex items-center justify-center font-bold"
+            className="w-9 h-9 rounded-full flex items-center justify-center font-bold shrink-0"
             style={{
               background: "linear-gradient(135deg, var(--color-gold), #8a6d3f)",
               color: "#17191c",
               fontFamily: "Georgia, serif",
             }}
           >
-            C
+            {initial}
           </div>
-          <div>
-            <div className="serif text-lg tracking-[0.14em] uppercase">Chatrium</div>
-            <div className="text-[11px] text-muted tracking-[0.18em] uppercase mt-0.5" style={{ color: "var(--color-muted)" }}>
-              AI Assistant
+          <div className="min-w-0">
+            <div className="serif text-base tracking-[0.12em] uppercase truncate">{config.app_name}</div>
+            <div
+              className="text-[11px] tracking-[0.16em] uppercase mt-0.5 truncate"
+              style={{ color: "var(--color-muted)" }}
+            >
+              {config.app_tagline}
             </div>
           </div>
         </div>
 
-        <button
-          type="button"
-          className="btn-gold text-xs py-2.5"
-          onClick={() => {
-            setLanguage("th");
-            setProperty("rawai");
-            setRole("general_manager");
-            setTaskType("guest_email");
-            setRecipientContext("");
-            setObjective("");
-            setAdditionalNotes("");
-            setResult(null);
-            setError(null);
-          }}
-        >
+        <button type="button" className="btn-gold text-xs py-2.5" onClick={resetForm}>
           + New Draft
         </button>
 
@@ -137,15 +161,13 @@ export function ComposeWorkspace() {
           <div className="text-[10px] tracking-[0.2em] uppercase mb-1" style={{ color: "var(--color-muted)" }}>
             How to use
           </div>
-          {[
-            "1. Fill in the form",
-            "2. Click Generate Email",
-            "3. Copy → paste into Outlook",
-          ].map((s) => (
-            <p key={s} className="text-[12px] leading-relaxed" style={{ color: "#c7c9cc" }}>
-              {s}
-            </p>
-          ))}
+          {["1. Fill in the form", "2. Click Generate Email", "3. Copy → paste into Outlook"].map(
+            (s) => (
+              <p key={s} className="text-[12px] leading-relaxed" style={{ color: "#c7c9cc" }}>
+                {s}
+              </p>
+            ),
+          )}
         </div>
 
         <div className="mt-auto">
@@ -161,16 +183,22 @@ export function ComposeWorkspace() {
         </div>
       </aside>
 
-      {/* Main */}
+      {/* ── Main ── */}
       <main className="flex flex-col overflow-hidden">
+        {/* Header */}
         <div
           className="px-7 py-4 border-b flex items-center justify-between gap-5"
           style={{ background: "#0d0f11", borderColor: "var(--color-line)" }}
         >
           <div>
-            <h1 className="serif text-base font-medium tracking-wider m-0">Professional Communication Drafting</h1>
-            <div className="text-[11px] tracking-[0.16em] uppercase mt-1" style={{ color: "var(--color-muted)" }}>
-              Brand Voice · Rene Balmer · v1.0 · Auto-applied
+            <h1 className="serif text-base font-medium tracking-wider m-0">
+              Professional Communication Drafting
+            </h1>
+            <div
+              className="text-[11px] tracking-[0.16em] uppercase mt-1"
+              style={{ color: "var(--color-muted)" }}
+            >
+              Brand Voice · {config.brand_voice_author} · Auto-applied
             </div>
           </div>
           <div className="flex gap-1.5 flex-wrap">
@@ -199,7 +227,7 @@ export function ComposeWorkspace() {
           >
             <h2 className="serif text-[22px] tracking-wider m-0 mb-1">Compose</h2>
             <p className="text-xs mb-5" style={{ color: "var(--color-muted)" }}>
-              Describe the objective. The Chatrium brand voice is applied automatically.
+              Describe the objective. The brand voice is applied automatically.
             </p>
 
             <div className="field mb-4">
@@ -218,20 +246,16 @@ export function ComposeWorkspace() {
               <div className="field">
                 <label>Property</label>
                 <select value={property} onChange={(e) => setProperty(e.target.value as Property)}>
-                  {PROPERTIES.map((p) => (
-                    <option key={p.value} value={p.value}>
-                      {p.label}
-                    </option>
+                  {config.properties.map((p) => (
+                    <option key={p.value} value={p.value}>{p.label}</option>
                   ))}
                 </select>
               </div>
               <div className="field">
                 <label>Your role</label>
                 <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-                  {ROLES.map((r) => (
-                    <option key={r.value} value={r.value}>
-                      {r.label}
-                    </option>
+                  {config.roles.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
                   ))}
                 </select>
               </div>
@@ -256,7 +280,7 @@ export function ComposeWorkspace() {
               <label>Recipient context</label>
               <input
                 type="text"
-                placeholder="e.g. Ms. Chen — Diamond member — honeymoon stay Apr 24–28"
+                placeholder="e.g. Ms. Chen — VIP member — anniversary stay"
                 value={recipientContext}
                 onChange={(e) => setRecipientContext(e.target.value)}
               />
@@ -275,7 +299,7 @@ export function ComposeWorkspace() {
               <label>Additional notes (optional)</label>
               <input
                 type="text"
-                placeholder="e.g. mention MICHELIN 2026 recognition for Etcha"
+                placeholder="e.g. mention the restaurant award or upcoming event"
                 value={additionalNotes}
                 onChange={(e) => setAdditionalNotes(e.target.value)}
               />
@@ -290,7 +314,11 @@ export function ComposeWorkspace() {
             {error && (
               <div
                 className="mt-4 p-3 rounded text-[12px]"
-                style={{ background: "rgba(201, 122, 122, 0.08)", borderLeft: "2px solid #c97a7a", color: "#e8d4d4" }}
+                style={{
+                  background: "rgba(201, 122, 122, 0.08)",
+                  borderLeft: "2px solid #c97a7a",
+                  color: "#e8d4d4",
+                }}
               >
                 {error}
               </div>
@@ -304,7 +332,7 @@ export function ComposeWorkspace() {
                 color: "#d8d6cf",
               }}
             >
-              <b>Brand voice enforced automatically:</b> No em-dashes · No slang · Warm executive clarity · Guest-first · Concise and elegant.
+              <b>Brand voice enforced automatically:</b> No em-dashes · No slang · Warm professional clarity · Guest-first · Concise and elegant.
             </div>
           </form>
 
@@ -314,7 +342,7 @@ export function ComposeWorkspace() {
             <p className="text-xs mb-5" style={{ color: "var(--color-muted)" }}>
               English output, brand-aligned and ready to review.
             </p>
-            <DraftPreview result={result} loading={loading} />
+            <DraftPreview result={result} loading={loading} brandAuthor={config.brand_voice_author} />
           </section>
         </div>
       </main>

@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 const NAV = [
-  { href: "/admin/api-settings", label: "🔑 API Settings" },
-  { href: "/admin/brand-voice",  label: "📝 Brand Voice" },
+  { href: "/admin/app-settings",  label: "🏨 App Settings" },
+  { href: "/admin/api-settings",  label: "🔑 API Settings" },
+  { href: "/admin/brand-voice",   label: "📝 Brand Voice" },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

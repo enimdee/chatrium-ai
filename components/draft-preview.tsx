@@ -6,9 +6,11 @@ import type { GenerateResponse } from "@/lib/schemas";
 export function DraftPreview({
   result,
   loading,
+  brandAuthor,
 }: {
   result: GenerateResponse | null;
   loading: boolean;
+  brandAuthor?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -35,15 +37,22 @@ export function DraftPreview({
         </div>
         <div
           className="rounded-lg p-4 space-y-2 text-[12px]"
-          style={{ background: "var(--color-panel)", borderLeft: "2px solid var(--color-gold)", color: "#c7b48a" }}
+          style={{
+            background: "var(--color-panel)",
+            borderLeft: "2px solid var(--color-gold)",
+            color: "#c7b48a",
+          }}
         >
-          <div className="font-semibold tracking-wide uppercase text-[10px]" style={{ color: "var(--color-gold)" }}>
-            Brand Voice: Rene Balmer
+          <div
+            className="font-semibold tracking-wide uppercase text-[10px]"
+            style={{ color: "var(--color-gold)" }}
+          >
+            Brand Voice{brandAuthor ? `: ${brandAuthor}` : ""}
           </div>
           {[
             "Emotional — write to a real person, not a file",
             "Connection — reference the guest's history",
-            "Example — be specific, name the hotel and amenity",
+            "Example — be specific, name the property and amenity",
             'Remarkable — close with "Remarkably yours,"',
           ].map((tip) => (
             <div key={tip} className="flex gap-2 items-start">
@@ -64,24 +73,31 @@ export function DraftPreview({
   };
 
   const qcChecks: { label: string; ok: boolean }[] = [
-    { label: "No em-dashes", ok: result.qc.no_em_dash },
-    { label: "No slang", ok: result.qc.no_slang },
-    { label: "CTA included", ok: result.qc.cta_present },
+    { label: "No em-dashes",       ok: result.qc.no_em_dash },
+    { label: "No slang",           ok: result.qc.no_slang },
+    { label: "CTA included",       ok: result.qc.cta_present },
     { label: "Loyalty recognised", ok: result.qc.loyalty_recognised },
-    { label: "Length sane", ok: result.qc.length_ok },
+    { label: "Length sane",        ok: result.qc.length_ok },
   ];
 
   return (
     <div>
       <div
         className="rounded-lg border overflow-hidden"
-        style={{ background: "#0d0f11", borderColor: "var(--color-line)", boxShadow: "0 8px 40px rgba(0,0,0,.28)" }}
+        style={{
+          background: "#0d0f11",
+          borderColor: "var(--color-line)",
+          boxShadow: "0 8px 40px rgba(0,0,0,.28)",
+        }}
       >
         <div
           className="px-4 py-3 flex items-center justify-between border-b"
           style={{ background: "var(--color-panel)", borderColor: "var(--color-line)" }}
         >
-          <span className="text-[11px] tracking-[0.14em] uppercase" style={{ color: "var(--color-gold)" }}>
+          <span
+            className="text-[11px] tracking-[0.14em] uppercase"
+            style={{ color: "var(--color-gold)" }}
+          >
             Generated · Business English
           </span>
           <button
@@ -125,21 +141,11 @@ export function DraftPreview({
         className="mt-4 text-[11px] tracking-wider uppercase flex gap-5 flex-wrap"
         style={{ color: "var(--color-muted)" }}
       >
-        <span>
-          Tokens: <b style={{ color: "var(--color-ink)" }}>{result.usage.input_tokens + result.usage.output_tokens}</b>
-        </span>
-        <span>
-          Cached input: <b style={{ color: "var(--color-ink)" }}>{result.usage.input_tokens_cached}</b>
-        </span>
-        <span>
-          Cost: <b style={{ color: "var(--color-ink)" }}>฿{result.usage.estimated_cost_thb.toFixed(2)}</b>
-        </span>
-        <span>
-          Latency: <b style={{ color: "var(--color-ink)" }}>{(result.usage.latency_ms / 1000).toFixed(1)}s</b>
-        </span>
-        <span>
-          Model: <b style={{ color: "var(--color-ink)" }}>{result.model}</b>
-        </span>
+        <span>Tokens: <b style={{ color: "var(--color-ink)" }}>{result.usage.input_tokens + result.usage.output_tokens}</b></span>
+        <span>Cached: <b style={{ color: "var(--color-ink)" }}>{result.usage.input_tokens_cached}</b></span>
+        <span>Cost: <b style={{ color: "var(--color-ink)" }}>฿{result.usage.estimated_cost_thb.toFixed(2)}</b></span>
+        <span>Latency: <b style={{ color: "var(--color-ink)" }}>{(result.usage.latency_ms / 1000).toFixed(1)}s</b></span>
+        <span>Model: <b style={{ color: "var(--color-ink)" }}>{result.model}</b></span>
       </div>
     </div>
   );
