@@ -25,6 +25,8 @@ const envSchema = z.object({
   AUTH_SECRET: z.string().min(16).optional(),
   AUTH_URL: z.string().url().optional(),
   AUTH_EMAIL_FROM: z.string().email().optional(),
+  /** Bootstrap admin — always has sign-in access regardless of settings.json. */
+  ADMIN_EMAIL: z.string().email().optional(),
 
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().positive().optional(),

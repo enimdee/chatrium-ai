@@ -38,6 +38,7 @@ const FALLBACK_CONFIG: AppConfig = {
 
 export function ComposeWorkspace() {
   const [config, setConfig] = useState<AppConfig>(FALLBACK_CONFIG);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   const [language, setLanguage]               = useState<InputLanguage>("th");
   const [property, setProperty]               = useState<Property>("");
@@ -65,6 +66,14 @@ export function ComposeWorkspace() {
         setProperty(FALLBACK_CONFIG.properties[0]!.value as Property);
         setRole(FALLBACK_CONFIG.roles[0]!.value as Role);
       });
+
+    // Load current user session
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d: { authenticated?: boolean; email?: string }) => {
+        if (d.authenticated) setUserEmail(d.email ?? null);
+      })
+      .catch(() => {});
   }, []);
 
   function resetForm() {
@@ -175,7 +184,7 @@ export function ComposeWorkspace() {
           )}
         </div>
 
-        <div className="mt-auto pt-4 border-t" style={{ borderColor: "var(--color-line)" }}>
+        <div className="mt-auto pt-4 border-t space-y-1" style={{ borderColor: "var(--color-line)" }}>
           <a
             href="/admin/app-settings"
             className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors"
@@ -192,6 +201,30 @@ export function ComposeWorkspace() {
             <span className="text-base">⚙</span>
             <span>Admin Settings</span>
           </a>
+
+          {userEmail && (
+            <div
+              className="px-3 py-2.5 rounded-lg"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            >
+              <p
+                className="text-[11px] truncate mb-1.5"
+                style={{ color: "#6b7280" }}
+                title={userEmail}
+              >
+                {userEmail}
+              </p>
+              <form action="/api/auth/logout" method="POST">
+                <button
+                  type="submit"
+                  className="text-[11px] tracking-wider hover:opacity-80 transition-opacity"
+                  style={{ color: "#a0a4aa" }}
+                >
+                  Sign out
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </aside>
 

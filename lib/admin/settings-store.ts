@@ -28,6 +28,12 @@ export interface AppSettings {
   properties_text: string;   // one property name per line
   roles_text: string;        // one role name per line
 
+  // ── User access lists ─────────────────────────────────────────────────────
+  /** Newline (or comma) separated list of emails that can log in as staff. */
+  allowed_emails: string;
+  /** Subset of allowed_emails with admin role. */
+  admin_emails: string;
+
   // ── Cost ceiling ──────────────────────────────────────────────────────────
   /** Hard monthly cost ceiling in THB. /api/generate returns 429 beyond this. */
   monthly_cost_ceiling_thb: number;
@@ -62,6 +68,9 @@ const DEFAULTS: AppSettings = {
 
   properties_text: DEFAULT_PROPERTIES,
   roles_text: DEFAULT_ROLES,
+
+  allowed_emails: process.env.ADMIN_EMAIL ?? "",
+  admin_emails: process.env.ADMIN_EMAIL ?? "",
 
   monthly_cost_ceiling_thb: Number(process.env.COST_CEILING_THB_PER_USER_MONTH ?? "50"),
   cost_alert_percent: 80,

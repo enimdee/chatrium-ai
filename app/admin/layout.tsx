@@ -6,6 +6,7 @@ const NAV = [
   { href: "/admin/api-settings",  label: "🔑 API Settings" },
   { href: "/admin/brand-voice",   label: "📝 Brand Voice" },
   { href: "/admin/usage",         label: "📊 Usage & Cost" },
+  { href: "/admin/users",         label: "👥 Users" },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
