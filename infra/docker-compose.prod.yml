@@ -1,10 +1,10 @@
-# Production compose — VPS srv1467971 (ai.wokeflow.net)
+# Production compose — Wokeflow Hotel AI (wf-hotel-ai)
 # Traefik (already running via n8n) handles TLS + routing.
 # Run: docker compose -f docker-compose.prod.yml up -d
 
 services:
   web:
-    image: ghcr.io/enimdee/chatrium-ai:latest
+    image: ghcr.io/enimdee/wf-hotel-ai:latest
     restart: unless-stopped
     expose:
       - "3000"
@@ -26,10 +26,10 @@ services:
       DATA_DIR: /app/data
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.chatrium-ai.rule=Host(`ai.wokeflow.net`)"
-      - "traefik.http.routers.chatrium-ai.entrypoints=websecure"
-      - "traefik.http.routers.chatrium-ai.tls.certresolver=letsencrypt"
-      - "traefik.http.services.chatrium-ai.loadbalancer.server.port=3000"
+      - "traefik.http.routers.wf-hotel-ai.rule=Host(`ai.wokeflow.net`)"
+      - "traefik.http.routers.wf-hotel-ai.entrypoints=websecure"
+      - "traefik.http.routers.wf-hotel-ai.tls.certresolver=letsencrypt"
+      - "traefik.http.services.wf-hotel-ai.loadbalancer.server.port=3000"
       - "traefik.docker.network=n8n_default"
     networks:
       - n8n_default

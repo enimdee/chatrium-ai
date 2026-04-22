@@ -26,7 +26,7 @@
 ## 🔴 Active — Go-to-Market (ทำก่อน)
 
 ### Product Branding & Sales
-- [ ] **GTM-1** Rename repo จาก `chatrium-ai` → `wokeflow-hotel-ai` (generic SaaS name)
+- [x] **GTM-1** Rename repo + image จาก `chatrium-ai` → `wf-hotel-ai` (generic SaaS name)
 - [ ] **GTM-2** Landing page `wokeflow.net/hotel-ai` — value prop, pricing, demo request
 - [ ] **GTM-3** Demo instance ที่ใช้ show ลูกค้า (ไม่ใช่ Chatrium data)
 - [ ] **GTM-4** Sales deck (PowerPoint/Google Slides) — 10 slides

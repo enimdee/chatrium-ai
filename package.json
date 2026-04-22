@@ -1,8 +1,8 @@
 {
-  "name": "chatrium-ai",
-  "version": "0.1.0",
+  "name": "wf-hotel-ai",
+  "version": "1.0.0",
   "private": true,
-  "description": "Chatrium AI Communication Assistant — internal app that drafts brand-aligned guest emails",
+  "description": "Wokeflow Hotel AI — SaaS platform that drafts brand-aligned guest emails for hospitality businesses",
   "engines": {
     "node": ">=22.0.0"
   },

@@ -27,7 +27,7 @@ for dir in /opt/wokeflow/wf-*/; do
   sub=$(basename "$dir" | sed "s/^wf-//")
   web_status=$(docker compose -f "${dir}docker-compose.yml" ps --format json 2>/dev/null | jq -r ".[] | select(.Service==\"web\") | .State" 2>/dev/null || echo "unknown")
   mysql_status=$(docker compose -f "${dir}docker-compose.yml" ps --format json 2>/dev/null | jq -r ".[] | select(.Service==\"mysql\") | .State" 2>/dev/null || echo "unknown")
-  image_tag=$(docker compose -f "${dir}docker-compose.yml" images 2>/dev/null | grep "chatrium-ai" | awk "{print \$3}" | head -1 || echo "?")
+  image_tag=$(docker compose -f "${dir}docker-compose.yml" images 2>/dev/null | grep "wf-hotel-ai" | awk "{print \$3}" | head -1 || echo "?")
 
   if [[ "$web_status" == "running" ]]; then
     web_disp="${GREEN}${web_status}${NC}"

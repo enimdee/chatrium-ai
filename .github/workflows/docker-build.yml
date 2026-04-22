@@ -32,6 +32,6 @@ jobs:
           context: .
           file: ./infra/Dockerfile
           push: true
-          tags: ghcr.io/enimdee/chatrium-ai:latest
+          tags: ghcr.io/enimdee/wf-hotel-ai:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max

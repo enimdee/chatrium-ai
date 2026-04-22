@@ -122,7 +122,7 @@ ssh -o StrictHostKeyChecking=accept-new "${VPS_USER}@${VPS_IP}" "cat > ${DEPLOY_
 
 services:
   web:
-    image: ghcr.io/enimdee/chatrium-ai:latest
+    image: ghcr.io/enimdee/wf-hotel-ai:latest
     restart: unless-stopped
     expose:
       - "3000"

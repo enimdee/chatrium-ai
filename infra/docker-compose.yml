@@ -16,7 +16,7 @@ services:
     build:
       context: ..
       dockerfile: infra/Dockerfile
-    image: chatrium-ai-web:latest
+    image: wf-hotel-ai-web:latest
     restart: unless-stopped
     env_file:
       - ../.env
